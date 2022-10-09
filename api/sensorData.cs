@@ -7,29 +7,47 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Azure.Data.Tables;
+using Azure;
+
 
 namespace SteveSyrell.PurpleAirDashboard.Api
 {
-    public static class sensorData
+    public static class SensorData
     {
         [FunctionName("sensorData")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
+            TableServiceClient tableServiceClient = new TableServiceClient(Environment.GetEnvironmentVariable("TableStorageConnectionString"));
+            TableClient tableClient = tableServiceClient.GetTableClient(tableName: "history");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            var dataEntry = new SensorDataEntry
+            {
+                PartitionKey = "12345",
+                RowKey = DateTimeOffset.UtcNow.ToString("yyyyMMdd-HHmmss"),
+                Json = requestBody
+            };
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            await tableClient.AddEntityAsync<SensorDataEntry>(dataEntry);
 
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult("Sensor Data Added");
         }
+    }
+
+    public record SensorDataEntry : ITableEntity
+    {
+        public string RowKey { get; set; } = default!;
+
+        public string PartitionKey { get; set; } = default!;
+
+        public string Json { get; set; }
+
+        public ETag ETag { get; set; } = default!;
+
+        public DateTimeOffset? Timestamp { get; set; } = default!;
     }
 }
