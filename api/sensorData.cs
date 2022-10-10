@@ -25,6 +25,7 @@ namespace SteveSyrell.PurpleAirDashboard.Api
             TableClient tableClient = tableServiceClient.GetTableClient(tableName: "history");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            log.LogInformation($"Request Body: {requestBody}");
             var dataEntry = new SensorDataEntry
             {
                 PartitionKey = "12345",
@@ -34,7 +35,7 @@ namespace SteveSyrell.PurpleAirDashboard.Api
 
             await tableClient.AddEntityAsync<SensorDataEntry>(dataEntry);
 
-            return new OkObjectResult("Sensor Data Added");
+            return new OkResult();
         }
     }
 
