@@ -21,19 +21,28 @@ namespace SteveSyrell.PurpleAirDashboard.Api
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
-            TableServiceClient tableServiceClient = new TableServiceClient(Environment.GetEnvironmentVariable("TableStorageConnectionString"));
-            TableClient tableClient = tableServiceClient.GetTableClient(tableName: "history");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            log.LogInformation($"Request Body: {requestBody}");
-            var dataEntry = new SensorDataEntry
+            try
             {
-                PartitionKey = "12345",
-                RowKey = DateTimeOffset.UtcNow.ToString("yyyyMMdd-HHmmss"),
-                Json = requestBody
-            };
+                TableServiceClient tableServiceClient = new TableServiceClient(Environment.GetEnvironmentVariable("TableStorageConnectionString"));
+                TableClient tableClient = tableServiceClient.GetTableClient(tableName: "history");
 
-            await tableClient.AddEntityAsync<SensorDataEntry>(dataEntry);
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                log.LogInformation($"Request Body: {requestBody}");
+                var dataEntry = new SensorDataEntry
+                {
+                    PartitionKey = "12345",
+                    RowKey = DateTimeOffset.UtcNow.ToString("yyyyMMdd-HHmmss"),
+                    Json = requestBody
+                };
+
+                await tableClient.AddEntityAsync<SensorDataEntry>(dataEntry);
+            }
+            catch (Exception e)
+            {
+                log.LogError(new EventId(), e, "request failed");
+                return new StatusCodeResult(500);
+            }
 
             return new OkResult();
         }
