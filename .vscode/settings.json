@@ -6,5 +6,11 @@
     "debug.internalConsoleOptions": "neverOpen",
     "azureFunctions.preDeployTask": "publish (functions)",
     "editor.formatOnType": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "files.exclude": {
+        "**/bin": true,
+        "**/build": true,
+        "**/node_modules": true,
+        "**/obj": true
+    }
 }
