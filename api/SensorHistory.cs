@@ -36,12 +36,12 @@ namespace SteveSyrell.PurpleAirDashboard.Api
             if (averagingPeriod == 0)
             {
                 var query = tableClient.QueryAsync<RealTimeTableEntity>(x => x.PartitionKey == sensorId);
-                return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount));
+                return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount, log));
             }
             else
             {
                 var query = tableClient.QueryAsync<AverageTableEntity>(x => x.PartitionKey == sensorId);
-                return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount));
+                return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount, log));
             }
         }
 
@@ -60,11 +60,12 @@ namespace SteveSyrell.PurpleAirDashboard.Api
             }
         }
 
-        private static async Task<List<T>> GetHistoryRowsAsync<T>(AsyncPageable<T> query, int rowCount)
+        private static async Task<List<T>> GetHistoryRowsAsync<T>(AsyncPageable<T> query, int rowCount, ILogger log)
         {
             List<T> rows = new();
             await foreach (var row in query)
             {
+                log.LogInformation("[GetHistoryRowsAsync] adding row");
                 rows.Add(row);
                 if (rows.Count == rowCount)
                 {
