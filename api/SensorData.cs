@@ -40,12 +40,12 @@ namespace SteveSyrell.PurpleAirDashboard.Api
 
             if (averagingPeriod == 0)
             {
-                var query = tableClient.QueryAsync<RealTimeTableEntity>(x => x.PartitionKey == sensorId, rowCount);
+                var query = tableClient.QueryAsync<RealTimeTableEntity>(x => x.PartitionKey == sensorId, maxPerPage: rowCount);
                 return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount, log));
             }
             else
             {
-                var query = tableClient.QueryAsync<AverageTableEntity>(x => x.PartitionKey == sensorId, rowCount);
+                var query = tableClient.QueryAsync<RealTimeTableEntity>(x => x.PartitionKey == sensorId, maxPerPage: rowCount);
                 return new OkObjectResult(await GetHistoryRowsAsync(query, rowCount, log));
             }
         }
@@ -78,6 +78,8 @@ namespace SteveSyrell.PurpleAirDashboard.Api
                 }
             }
 
+            // Reverse data so that rows are oldest -> newest
+            rows.Reverse();
             return rows;
         }
     }

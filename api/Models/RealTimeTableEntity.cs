@@ -28,19 +28,19 @@ namespace SteveSyrell.PurpleAirDashboard.Api.Models
 
         public string Place { get; set; }
 
-        public double CurrentTempFahrenheit { get; set; }
+        public double TempFahrenheit { get; set; }
 
-        public double CurrentHumidity { get; set; }
+        public double Humidity { get; set; }
 
-        public double CurrentDewpointFahrenheit { get; set; }
+        public double DewpointFahrenheit { get; set; }
 
         public double Pressure { get; set; }
 
-        public double CurrentTempFahrenheit680 { get; set; }
+        public double TempFahrenheit680 { get; set; }
 
-        public double CurrentHumidity680 { get; set; }
+        public double Humidity680 { get; set; }
 
-        public double CurrentDewpointFahrenheit680 { get; set; }
+        public double DewpointFahrenheit680 { get; set; }
 
         public double Pressure680 { get; set; }
 
